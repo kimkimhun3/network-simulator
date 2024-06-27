@@ -1,0 +1,168 @@
+/* Reset default margins and paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Global body styles */
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    padding: 30px; /* Increased padding */
+  }
+  
+  h1 {
+    text-align: center;
+    padding-top: 15px; /* Increased padding */
+    padding-bottom: 10px; /* Increased padding */
+    font-size: 28px; /* Larger font size */
+  }
+
+  span {
+    padding-left: 15px;
+    padding-right: 10px;
+  }
+  
+  /* Container for the form */
+  .container {
+    max-width: 800px; /* Increased max-width */
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Rounded corners */
+    padding: 30px; /* Increased padding */
+  }
+  
+  /* Flex container for each form row */
+  .form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px; /* Increased margin */
+  }
+  
+  /* Label styles */
+  label {
+    flex: 0 0 200px; /* Increased fixed width for labels */
+    margin-right: 15px; /* Increased spacing between label and input */
+    font-size: 16px; /* Larger font size */
+  }
+  
+  /* Input styles */
+  input[type="number"],
+  input[type="text"],
+  button {
+    flex: 4; /* Input takes remaining space */
+    padding: 12px; /* Increased padding */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px; /* Larger font size */
+  }
+  
+/* Error state for inputs */
+input.error {
+    border-color: red;
+}
+
+.error-message {
+    display: none;
+    color: red;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.input-container.error {
+    position: relative;
+}
+
+.input-container.error .error-message {
+    display: block;
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+}
+
+
+
+  button {
+    cursor: pointer;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 16px; /* Adjusted padding for button */
+    font-size: 16px; /* Larger font size */
+  }
+  button:hover{
+    background-color: #5baff4;
+  }
+  
+  /* Error message styles */
+  .error-message {
+    color: red;
+    font-size: 14px; /* Adjusted font size */
+    margin-left: 8px; /* Adjusted spacing from input */
+  }
+  
+  /* Switch styles */
+  .switch {
+    position: relative;
+    display: inline-flex;
+    width: 40px; /* Adjusted width for switch */
+    height: 24px; /* Adjusted height for switch */
+    margin-left: 12px; /* Increased margin */
+  }
+  
+  .slider {
+    position: relative;
+    display: inline-block;
+    width: 40px; /* Width of the slider track */
+    height: 24px; /* Height of the slider track */
+    background-color: #ccc;
+    border-radius: 12px; /* Rounded corners for slider track */
+    transition: .4s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px; /* Adjusted height of slider knob */
+    width: 20px; /* Adjusted width of slider knob */
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+
+  /* Hide the checkbox */
+.switch input[type="checkbox"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* Adjusted style when switch is toggled ON */
+  .switch input[type="checkbox"]:checked + .slider {
+    background-color: #2196F3;
+  }
+  
+  .switch input[type="checkbox"]:checked + .slider:before {
+    transform: translateX(16px); /* Moved slider further when checked */
+  }
+  
+  /* Additional styles for repetition switches */
+  .repetition-switch {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Margin for repetition switches */
+  .repetition-switch .switch {
+    margin-left: 12px; /* Increased margin */
+  }
+  
