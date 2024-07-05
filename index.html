@@ -85,28 +85,36 @@
     <div class="mb-3 row">
       <label for="buffer2-times" class="col-sm-2 col-form-label">Buffer 2</label>
       <div class="col-sm-10 d-flex align-items-center">
-        <input type="number" class="form-control input-short" id="buffer2-times" value="0" placeholder="100~2000" name="buffer2-times" min="100" max="2000" disabled>
+        <input type="number" class="form-control input-short" id="buffer2-times" value="0" step="100" placeholder="100~2000" name="buffer2-times" min="100" max="2000" disabled>
         <span class="ms-2">ms</span>
-        <button id="buffer2-execute" class="btn btn-primary ms-3"  disabled>Addition2</button>
-        <span class="text-danger ms-2" id="buffer2-times-error"></span>
+        <!-- <button id="buffer2-execute" class="btn btn-primary ms-3"  disabled>+</button>
+        <button id="buffer2-execute-minus" class="btn btn-primary ms-3"  disabled>-</button> -->
+        <!-- <span class="text-danger ms-2" id="buffer2-times-error"></span> -->
+        <div>
+          <button id="buffer2-main-execute" class="btn btn-primary ms-3" disabled >Addition2</button>
+        </div>
       </div>
     </div>
+
 
     <div class="mb-3 row">
       <label for="buffer2-repetition" class="col-sm-2 col-form-label">Repetition buffer 2:</label>
       <div class="col-sm-10 d-flex align-items-center">
-        <input type="number" class="form-control input-short" value="1" id="buffer2-repetition" placeholder="1~30" name="buffer2-repetition" min="1" max="30" disabled>
+        <input type="number" class="form-control input-short" disabled value="0" id="buffer2-repetition" placeholder="1~30" name="buffer2-repetition" min="1" max="30" >
         <span class="ms-2">sec</span>
+        <!-- <button id="rptUp" class="btn btn-primary ms-3"  disabled>+</button>
+        <button id="rptDown" class="btn btn-primary ms-3"  disabled>-</button> -->
         <div class="form-check form-switch ms-3">
           <input class="form-check-input" type="checkbox" id="buffer2-repetition-switch" disabled>
           <label class="form-check-label" for="buffer2-repetition-switch" id="buffer2-repetition-switch-text">OFF</label>
         </div>
-        <span class="text-danger ms-2" id="buffer2-repetition-error"></span>
+        <!-- <span class="text-danger ms-2" id="buffer2-repetition-error"></span> -->
         <!-- <button id="stop">Stop</button> -->
       </div>
       
     </div>
   </div>
+
 
   <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="./renderer.js"></script>
