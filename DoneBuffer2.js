@@ -68,6 +68,9 @@ function handleBuffer2Execute() {
 
 function startBufferingStage() {
   if (bufferTime > 0) {
+    //find size
+    let totalSizeBytes = packetBuffer.reduce((total, packet) => total + packet.length, 0);
+    console.log(`Final Packet Buffer Size: ${totalSizeBytes} bytes`);
     bufferTimeout = setTimeout(() => {
       packetBuffer.forEach(packet => {
         server.send(packet, decoderPort, decoderIp, (err) => {
