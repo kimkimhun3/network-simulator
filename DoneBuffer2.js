@@ -104,7 +104,7 @@ function startBufferingStage() {
               bufferTime = 0; // Reset bufferTime to ensure only one-time buffering
               repetitionBufferTime = 0;
               document.getElementById('buffer2-times').value = bufferTime;
-              document.getElementById('buffer2-repetition').value = repetitionBufferTime;
+              document.getElementById('buffer2-repetition').value = repetitionBufferTime; //reset to 0
               enableRepetitionBuffer.checked = false;
             }, bufferTime);
           }
