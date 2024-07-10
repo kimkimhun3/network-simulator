@@ -23,18 +23,18 @@ function handleBuffer2Execute() {
 
   // Update waitingTime based on enableRepetitionBuffer
   if (enableRepetitionBuffer) {
-    waitingTime = repetitionBufferTime * 1000; // Convert seconds to milliseconds
+    waitingTime = repetitionBufferTime * 1000; // Convert seconds to milliseconds yyy
   } else {
     waitingTime = 0;
   }
 
-  if (bufferTime === 0 && !enableRepetitionBuffer) {
+  if ((bufferTime === 0 && !enableRepetitionBuffer) || (bufferTime === 0 && (enableRepetitionBuffer && repetitionBufferTime === 0 ))) {
     // Case 1: Forward packets directly to decoder
     console.log("Forwarding packets directly to decoder.");
     if (!server) {
       initializeServer();
     }
-  } else if (bufferTime > 0 && !enableRepetitionBuffer) {
+  } else if (bufferTime > 0 && (!enableRepetitionBuffer || repetitionBufferTime === 0)) {
     // Case 2: One-time buffering and then forward
     console.log(`Buffering packets for ${bufferTime}ms, then forwarding.`);
     performSingleBuffering();
