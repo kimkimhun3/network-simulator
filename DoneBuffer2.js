@@ -1,5 +1,6 @@
 const dgram = require('dgram');
 let server = null;
+let client = null;
 let bufferTimeout = null;
 let waitTimeout = null;
 let isWaiting = false;
@@ -8,8 +9,8 @@ let packetBuffer = [];
 let waitingTime = 0;
 let repetitionBufferTime = 0;
 let enableRepetitionBuffer = false;
-const decoderIp = document.getElementById('output-address').value;
-const decoderPort = parseInt(document.getElementById('input-port').value, 10);
+let decoderIp;
+let decoderPort;
 
 document.getElementById('buffer2-main-execute').addEventListener('click', handleBuffer2Execute);
 
@@ -18,6 +19,8 @@ function handleBuffer2Execute() {
   bufferTime = parseInt(document.getElementById('buffer2-times').value, 10);
   repetitionBufferTime = parseInt(document.getElementById('buffer2-repetition').value, 10);
   enableRepetitionBuffer = document.getElementById('buffer2-repetition-switch').checked;
+  decoderIp = document.getElementById('output-address').value;
+  decoderPort = parseInt(document.getElementById('input-port').value, 10);
 
   // Update waitingTime based on enableRepetitionBuffer
   if (enableRepetitionBuffer) {
@@ -44,7 +47,7 @@ function handleBuffer2Execute() {
       });
     } else if (bufferTime > 0) {
       packetBuffer.push(msg);
-      console.log(`Buffer packet size: ${packetBuffer.length}`);
+      //console.log(`Buffer packet size: ${packetBuffer.length}`);
     } else {
       // Forward packets directly to decoder
       server.send(msg, decoderPort, decoderIp, (err) => {
@@ -68,22 +71,9 @@ function handleBuffer2Execute() {
 
 function startBufferingStage() {
   if (bufferTime > 0) {
-    //find size
-    let totalSizeBytes = packetBuffer.reduce((total, packet) => total + packet.length, 0);
-    console.log(`Final Packet Buffer Size: ${totalSizeBytes} bytes`);
     bufferTimeout = setTimeout(() => {
-      packetBuffer.forEach(packet => {
-        server.send(packet, decoderPort, decoderIp, (err) => {
-          if (err) {
-            console.error(`Error sending packet to decoder: ${err.message}`);
-          }
-        });
-      });
-
-      // Clear the buffer
-      packetBuffer = [];
-      bufferTimeout = null;
-
+      sendBufferedPackets();
+      
       if (enableRepetitionBuffer && waitingTime > 0) {
         isWaiting = true;
         waitTimeout = setTimeout(() => {
@@ -93,21 +83,12 @@ function startBufferingStage() {
           // Start second buffering stage
           if (bufferTime > 0) {
             bufferTimeout = setTimeout(() => {
-              packetBuffer.forEach(packet => {
-                server.send(packet, decoderPort, decoderIp, (err) => {
-                  if (err) {
-                    console.error(`Error sending packet to decoder: ${err.message}`);
-                  }
-                });
-              });
+              sendBufferedPackets();
 
-              // Clear the buffer
-              packetBuffer = [];
-              bufferTimeout = null;
               bufferTime = 0; // Reset bufferTime to ensure only one-time buffering
               repetitionBufferTime = 0;
               document.getElementById('buffer2-times').value = bufferTime;
-              document.getElementById('buffer2-repetition').value = repetitionBufferTime; //reset to 0
+              document.getElementById('buffer2-repetition').value = repetitionBufferTime;
               enableRepetitionBuffer.checked = false;
             }, bufferTime);
           }
@@ -119,4 +100,26 @@ function startBufferingStage() {
       }
     }, bufferTime);
   }
+}
+
+function sendBufferedPackets() {
+  const startTime = Date.now();
+  console.log(`Start Time: ${startTime}`);
+  const totalSize = packetBuffer.reduce((sum, packet) => sum + packet.length, 0);
+  console.log(`Total size of packetBuffer: ${totalSize} bytes`);
+
+  packetBuffer.forEach(packet => {
+    server.send(packet, decoderPort, decoderIp, (err) => {
+      if (err) {
+        console.error(`Error sending packet to decoder: ${err.message}`);
+      }
+    });
+  });
+
+  const endTime = Date.now();
+  console.log(`End Time: ${endTime}`)
+  const totalDuration = endTime - startTime;
+  console.log(`Total time to send all packets: ${totalDuration}ms`);
+
+  packetBuffer = [];
 }
