@@ -1,6 +1,5 @@
 const dgram = require('dgram');
 let server = null;
-let client = null;
 let bufferTimeout = null;
 let waitTimeout = null;
 let isWaiting = false;
@@ -24,82 +23,62 @@ function handleBuffer2Execute() {
 
   // Update waitingTime based on enableRepetitionBuffer
   if (enableRepetitionBuffer) {
-    waitingTime = repetitionBufferTime * 1000; // Convert seconds to milliseconds
+    waitingTime = repetitionBufferTime * 1000; // Convert seconds to milliseconds yyy
+  } else {
+    waitingTime = 0;
   }
 
-  if (server) {
-    console.log(`Updated Buffer Time: ${bufferTime}ms`);
-    startBufferingStage();
-    return;
-  }
-
-  // Initialize server and start listening for packets
-  server = dgram.createSocket('udp4');
-  const BUFFER_SIZE = 64 * 1024 * 1024; // 64 MB
-  console.log(`Configured Decoder IP: ${decoderIp}, Port: ${decoderPort}, Buffer Time: ${bufferTime}ms, Repetition Buffer Time: ${repetitionBufferTime}s`);
-
-  server.on('message', (msg, rinfo) => {
-    if (isWaiting) {
-      server.send(msg, decoderPort, decoderIp, (err) => {
-        if (err) {
-          console.error(`Error forwarding packet to decoder: ${err.message}`);
-        }
-      });
-    } else if (bufferTime > 0) {
-      packetBuffer.push(msg);
-      //console.log(`Buffer packet size: ${packetBuffer.length}`);
-    } else {
-      // Forward packets directly to decoder
-      server.send(msg, decoderPort, decoderIp, (err) => {
-        if (err) {
-          console.error(`Error forwarding packet to decoder: ${err.message}`);
-        }
-      });
+  if ((bufferTime === 0 && !enableRepetitionBuffer) || (bufferTime === 0 && (enableRepetitionBuffer && repetitionBufferTime === 0 ))) {
+    // Case 1: Forward packets directly to decoder
+    console.log("Forwarding packets directly to decoder.");
+    if (!server) {
+      initializeServer();
     }
-  });
-
-  server.on('listening', () => {
-    const address = server.address();
-    console.log(`Server listening on ${address.address}:${address.port}`);
-    
-    server.setRecvBufferSize(BUFFER_SIZE);
-    server.setSendBufferSize(BUFFER_SIZE);
-  });
-
-  server.bind(decoderPort);
+  } else if (bufferTime > 0 && (!enableRepetitionBuffer || repetitionBufferTime === 0)) {
+    // Case 2: One-time buffering and then forward
+    console.log(`Buffering packets for ${bufferTime}ms, then forwarding.`);
+    performSingleBuffering();
+  } else if (bufferTime > 0 && enableRepetitionBuffer) {
+    // Case 3: Repetitive buffering and waiting
+    console.log(`Repetitive buffering and waiting.`);
+    startBufferingCycle();
+  }
 }
 
-function startBufferingStage() {
-  if (bufferTime > 0) {
-    bufferTimeout = setTimeout(() => {
-      sendBufferedPackets();
-      
-      if (enableRepetitionBuffer && waitingTime > 0) {
-        isWaiting = true;
-        waitTimeout = setTimeout(() => {
-          isWaiting = false;
-          waitTimeout = null;
-
-          // Start second buffering stage
-          if (bufferTime > 0) {
-            bufferTimeout = setTimeout(() => {
-              sendBufferedPackets();
-
-              bufferTime = 0; // Reset bufferTime to ensure only one-time buffering
-              repetitionBufferTime = 0;
-              document.getElementById('buffer2-times').value = bufferTime;
-              document.getElementById('buffer2-repetition').value = repetitionBufferTime;
-              enableRepetitionBuffer.checked = false;
-            }, bufferTime);
-          }
-        }, waitingTime);
-      } else {
-        // If there's no waiting stage or waiting time is 0, stop here
-        bufferTime = 0; // Reset bufferTime to ensure only one-time buffering
-        document.getElementById('buffer2-times').value = bufferTime;
-      }
-    }, bufferTime);
+function performSingleBuffering() {
+  // Initialize server if not already initialized
+  if (!server) {
+    initializeServer();
   }
+
+  bufferTimeout = setTimeout(() => {
+    sendBufferedPackets();
+    bufferTime = 0; // Reset bufferTime after one-time buffering
+    document.getElementById('buffer2-times').value = bufferTime;
+    console.log("Buffering complete. Forwarding packets directly to decoder.");
+  }, bufferTime);
+}
+
+function startBufferingCycle() {
+  // Initialize server if not already initialized
+  if (!server) {
+    initializeServer();
+  }
+
+  function performBuffering() {
+    sendBufferedPackets();
+
+    if (enableRepetitionBuffer && waitingTime > 0) {
+      isWaiting = true;
+      waitTimeout = setTimeout(() => {
+        isWaiting = false;
+        waitTimeout = null;
+        bufferTimeout = setTimeout(performBuffering, bufferTime);
+      }, waitingTime);
+    }
+  }
+
+  bufferTimeout = setTimeout(performBuffering, bufferTime);
 }
 
 function sendBufferedPackets() {
@@ -122,4 +101,38 @@ function sendBufferedPackets() {
   console.log(`Total time to send all packets: ${totalDuration}ms`);
 
   packetBuffer = [];
+}
+
+function initializeServer() {
+  server = dgram.createSocket('udp4');
+  const BUFFER_SIZE = 64 * 1024 * 1024; // 64 MB
+
+  server.on('message', (msg, rinfo) => {
+    if (isWaiting) {
+      server.send(msg, decoderPort, decoderIp, (err) => {
+        if (err) {
+          console.error(`Error forwarding packet to decoder: ${err.message}`);
+        }
+      });
+    } else if (bufferTime > 0) {
+      packetBuffer.push(msg);
+    } else {
+      // Forward packets directly to decoder
+      server.send(msg, decoderPort, decoderIp, (err) => {
+        if (err) {
+          console.error(`Error forwarding packet to decoder: ${err.message}`);
+        }
+      });
+    }
+  });
+
+  server.on('listening', () => {
+    const address = server.address();
+    console.log(`Server listening on ${address.address}:${address.port}`);
+    
+    server.setRecvBufferSize(BUFFER_SIZE);
+    server.setSendBufferSize(BUFFER_SIZE);
+  });
+
+  server.bind(decoderPort);
 }
