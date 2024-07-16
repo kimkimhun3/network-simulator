@@ -205,3 +205,5 @@ function initializeServer() {
 
   server.bind(decoderPort, localIP);
 }
+
+//This is algorithm used deterministic approach.
