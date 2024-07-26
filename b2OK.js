@@ -75,7 +75,7 @@ function performSingleBuffering() {
 }
 
 function startBufferingCycle() {
-  // Initialize server if not already initialized
+  // Initialize server if not already initialized OK desu
   if (!server) {
     initializeServer();
   }
